@@ -74,7 +74,7 @@ elimina eventos y grupos antiguos en una transaccion y respeta
 datos runtime; los scripts Android se conservan porque siguen formando parte
 del flujo opcional de validacion.
 
-La suite actual tiene 40 tests pasando. El CLI admite `wall_tick_seconds` para
+La suite actual tiene 42 tests pasando. El CLI admite `wall_tick_seconds` para
 acelerar el tiempo de pared sin alterar el tiempo simulado. El escenario
 `scenarios/commute_bilbao_smoke.json` recorre la ventana completa en segundos;
 no modifica `scenarios/commute_bilbao.json`.
