@@ -404,8 +404,13 @@ Quedan como ampliaciones:
 - tests de `load_gpx()` con GPX vacio, sin timestamps, timestamps mixtos y timezone;
 - tests de `ScenarioEngine` con varias rutas;
 - tests de `LocationEvent` y batch;
-- tests de FastAPI para todos los endpoints;
 - pruebas adicionales de GPX mixto y `ScenarioEngine` con varias rutas.
+
+La integracion basica de FastAPI ya esta cubierta en `tests/test_pipeline_regressions.py`:
+ingesta batch, historial de dispositivo y consolidacion de grupos.
+
+La suite muestra avisos de deprecacion pendientes: migrar `on_event` a lifespan y
+revisar la compatibilidad futura de `TestClient` con `httpx`.
 
 El entorno global de Python no tenia `pytest` disponible en una validacion previa. El proyecto contiene `.venv`; la comprobacion correcta debe realizarse con el interprete del entorno virtual.
 
