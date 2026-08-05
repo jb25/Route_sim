@@ -44,6 +44,20 @@ def test_scenario_validation_rejects_invalid_values(tmp_path: Path):
         validate_scenario(config)
 
 
+def test_scenario_validation_rejects_invalid_wall_tick(tmp_path: Path):
+    config = {
+        "api_base_url": "http://localhost:8080",
+        "tick_seconds": 1,
+        "wall_tick_seconds": 0,
+        "batch_size": 1,
+        "log_every_n_ticks": 1,
+        "max_duration_seconds": 0,
+        "devices": [{"device_id": "d", "route_file": str(tmp_path / "route.gpx")}],
+    }
+    with pytest.raises(ValueError, match="wall_tick_seconds"):
+        validate_scenario(config)
+
+
 def test_publisher_does_not_retry_permanent_client_errors():
     calls = 0
 

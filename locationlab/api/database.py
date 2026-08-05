@@ -6,12 +6,18 @@ from __future__ import annotations
 
 import sqlite3
 import threading
+import os
 from contextlib import contextmanager
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Generator
 
-_DB_PATH = Path(__file__).parent.parent.parent / "locationlab.db"
+_DB_PATH = Path(
+    os.environ.get(
+        "LOCATIONLAB_DB_PATH",
+        Path(__file__).parent.parent.parent / "locationlab.db",
+    )
+)
 _lock = threading.Lock()
 
 

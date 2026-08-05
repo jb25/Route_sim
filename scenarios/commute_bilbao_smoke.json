@@ -1,0 +1,41 @@
+{
+  "_descripcion": "Smoke test acelerado del escenario de carpooling. No modifica el escenario canonico.",
+  "api_base_url": "http://localhost:8080",
+  "tick_seconds": 60.0,
+  "wall_tick_seconds": 0.05,
+  "batch_size": 10,
+  "use_batch_endpoint": true,
+  "log_every_n_ticks": 10,
+  "max_duration_seconds": 10,
+  "extra_headers": {},
+  "devices": [
+    {
+      "device_id": "conductor-lemoa",
+      "route_file": "routes/commute_driver.gpx",
+      "noise_meters": 3.0,
+      "speed_variation_pct": 1.0,
+      "label": "Conductor - Sale de Lemoa a las 07:00"
+    },
+    {
+      "device_id": "pasajero-amorebieta",
+      "route_file": "routes/commute_passenger1.gpx",
+      "noise_meters": 4.0,
+      "speed_variation_pct": 1.5,
+      "label": "Pasajero 1 - Amorebieta"
+    },
+    {
+      "device_id": "pasajero-durango",
+      "route_file": "routes/commute_passenger2.gpx",
+      "noise_meters": 4.0,
+      "speed_variation_pct": 1.5,
+      "label": "Pasajero 2 - Durango"
+    },
+    {
+      "device_id": "pasajero-eibar",
+      "route_file": "routes/commute_passenger3.gpx",
+      "noise_meters": 4.0,
+      "speed_variation_pct": 1.5,
+      "label": "Pasajero 3 - Eibar"
+    }
+  ]
+}

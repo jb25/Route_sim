@@ -2,7 +2,7 @@
 
 **Fecha de referencia:** 2026-08-05
 **Estado:** PoC funcional en Python; no es todavia un producto de produccion.
-**Repositorio Git:** esta carpeta no contiene actualmente un directorio `.git` ni un remoto configurado.
+**Repositorio Git:** rama `main`, remoto `origin` configurado y cambios publicados hasta el commit `b65a5ab`.
 
 ## 1. Instrucciones para un LLM
 
@@ -53,20 +53,29 @@ El proyecto no pretende ser una aplicacion final de movilidad ni una herramienta
 - Scripts de creacion y lanzamiento de AVDs.
 - Inyeccion de posiciones via ADB.
 - Captura de screenshot y jerarquia UI para exploracion de login.
-- Tests unitarios para geo, interpolacion y detector de grupos.
+- Tests unitarios, de regresion e integracion para geo, interpolacion, GPX,
+  escenarios, publicacion HTTP, API, SQLite y detector de grupos.
+- Validacion manual del escenario de carpooling y health check de la API.
 
 ### No implementado o no resuelto
 
 - Autenticacion propia de la API local.
 - Sistema de usuarios o permisos.
 - Dashboard web.
-- Agrupacion de grupos historicos y ciclo de vida correcto de grupos actuales.
+- Dashboard web.
 - Procesamiento distribuido o multi-worker coherente.
-- Tests de integracion API/SQLite/HTTP.
-- Pipeline CI.
-- Repositorio Git inicializado.
+- Retencion y limpieza automatica de datos SQLite.
+- Autenticacion y observabilidad para entornos no locales.
 - Infraestructura cloud o despliegue Azure.
 - Garantia de compatibilidad con una API de terceros.
+
+La suite actual tiene 40 tests pasando. El CLI admite `wall_tick_seconds` para
+acelerar el tiempo de pared sin alterar el tiempo simulado. El escenario
+`scenarios/commute_bilbao_smoke.json` recorre la ventana completa en segundos;
+no modifica `scenarios/commute_bilbao.json`.
+
+El repositorio incluye `.github/workflows/ci.yml`, que ejecuta la suite,
+compilacion y comprobacion de whitespace en cada push a `main` y pull request.
 
 ## 4. Estructura del proyecto
 
@@ -79,7 +88,8 @@ Route_sim_2026/
 ├── simulator_config.json       # Configuracion del simulador generico
 ├── emulator_config.json        # Mapeo entre ADB y dispositivos del escenario
 ├── scenarios/
-│   └── commute_bilbao.json     # Escenario principal de carpooling
+│   ├── commute_bilbao.json       # Escenario principal de carpooling
+│   └── commute_bilbao_smoke.json # Smoke acelerado del escenario principal
 ├── routes/
 │   ├── commute_driver.gpx
 │   ├── commute_passenger1.gpx
@@ -105,7 +115,9 @@ Route_sim_2026/
 ├── tests/
 │   ├── test_geo.py
 │   ├── test_group_detector.py
-│   └── test_interpolator.py
+│   ├── test_interpolator.py
+│   ├── test_gpx_reader.py
+│   └── test_pipeline_regressions.py
 ├── create_avds.py              # Crea archivos AVD manualmente en Windows
 ├── setup_avds.ps1              # Preparacion de AVDs
 ├── launch_emulators.ps1        # Lanzamiento de emuladores
@@ -224,6 +236,37 @@ Devuelve el historial del dispositivo. `limit` esta restringido entre 1 y 1000.
 Devuelve grupos guardados en SQLite cuya ultima actividad esta dentro de la ventana actual. La identidad se estabiliza por el conjunto canonico de dispositivos para evitar duplicados por tick.
 
 Swagger esta disponible cuando se arranca la API en `http://localhost:8080/docs`.
+
+## 9. Ejecucion recomendada
+
+La ruta principal de la PoC es HTTP local: API, simulador y SQLite pueden
+ejecutarse en el mismo equipo. Los dispositivos son objetos logicos Python;
+no es necesario iniciar un emulador Android por cada dispositivo.
+
+```powershell
+# Terminal 1
+python -m uvicorn locationlab.api.main:app --reload --port 8080
+
+# Terminal 2
+python validate_scenario.py
+python -m locationlab.simulator.scenario_main --scenario scenarios/commute_bilbao.json
+```
+
+Antes de ejecutar:
+
+```powershell
+python -m pytest -q
+python -m compileall -q locationlab
+```
+
+Para una ejecucion acelerada, usa `scenarios/commute_bilbao_smoke.json`.
+Tambien puedes definir `wall_tick_seconds` en cualquier escenario; si se
+omite, conserva el mismo valor que `tick_seconds`.
+
+La validacion Android es opcional y se reserva para smoke tests de una app
+propia o de staging autorizado. Se recomienda empezar con un unico AVD o un
+dispositivo fisico; cuatro AVDs requieren mas CPU y memoria y no sustituyen
+la simulacion HTTP de carga.
 
 ## 8. Modelo de datos
 

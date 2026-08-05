@@ -1,10 +1,20 @@
-# LocationLab – PoC de simulación de usuarios GPS
+# LocationLab - PoC de simulacion de usuarios GPS
 
 **Objetivo:** laboratorio para simular N dispositivos Android viajando juntos
 y verificar si una app (Tribbu u otra) es capaz de distinguir tráfico sintético
 del real. Uso exclusivo en entornos de pruebas **con autorización explícita**.
 
 ---
+
+## Estado y alcance
+
+La PoC implementa un pipeline local completo: escenarios GPX multi-ruta,
+simulacion de dispositivos logicos, publicacion HTTP, API FastAPI, SQLite y
+deteccion de grupos. La suite actual tiene 40 tests pasando.
+
+La ruta recomendada no necesita emuladores Android. Los AVDs son opcionales y
+solo sirven para validar visualmente una aplicacion propia o de staging
+autorizado.
 
 ## Estructura del proyecto
 
@@ -48,39 +58,69 @@ pip install -r requirements.txt
 
 ## Ejecución
 
-### 1. Lanzar la API local (modo validación)
+### 1. Lanzar la API local (modo validacion)
 
 ```bash
 uvicorn locationlab.api.main:app --reload --port 8080
 ```
 
+Para una prueba aislada, usa una base SQLite temporal mediante
+`LOCATIONLAB_DB_PATH`; el valor por defecto sigue siendo `locationlab.db`.
+
+```powershell
+$env:LOCATIONLAB_DB_PATH = "$PWD\artifacts\smoke\locationlab.db"
+python -m uvicorn locationlab.api.main:app --port 8080
+```
+
 Swagger UI disponible en: http://localhost:8080/docs
 
-### 2. Ejecutar el simulador contra la API local
+### 2. Validar el escenario de carpooling
+
+```bash
+python validate_scenario.py
+```
+
+### 3. Ejecutar el escenario multi-ruta contra la API local
+
+```bash
+python -m locationlab.simulator.scenario_main \
+  --scenario scenarios/commute_bilbao.json
+```
+
+Para recorrer la misma ventana de 57 minutos en pocos segundos, usa el
+escenario smoke acelerado:
+
+```bash
+python -m locationlab.simulator.scenario_main \
+  --scenario scenarios/commute_bilbao_smoke.json
+```
+
+### 4. Ejecutar el simulador generico contra la API local
 
 ```bash
 python -m locationlab.simulator.main --config simulator_config.json
 ```
 
-### 3. Ejecutar el simulador contra Tribbu (o cualquier app objetivo)
+### 5. Integrar con otra API autorizada
 
 Edita `simulator_config.json`:
 
 ```json
 {
-  "api_base_url": "https://api.tribbu.com",   // ← URL real de la app
+  "api_base_url": "https://staging.example.test",   // ← API propia autorizada
   "device_count": 50,
   "extra_headers": {
-    "Authorization": "Bearer <token>",         // ← token válido
-    "X-App-Version": "3.2.1"
+    "X-App-Version": "3.2.1",
+    "Authorization": "Bearer ${LOCATIONLAB_TEST_TOKEN}"
   }
 }
 ```
 
 > **IMPORTANTE:** Los endpoints (`/api/locations`, `/api/locations/batch`) deben
-> ajustarse a los endpoints reales de la app objetivo en `publisher.py`.
+> ajustarse al contrato de la API propia de staging en `publisher.py`. No
+> guardes tokens reales en archivos JSON ni los publiques en Git.
 
-### 4. Ejecutar tests
+### 6. Ejecutar tests
 
 ```bash
 pytest tests/ -v
@@ -88,7 +128,7 @@ pytest tests/ -v
 
 ---
 
-## Configuración del simulador
+## Configuracion del simulador
 
 | Parámetro | Descripción | Por defecto |
 |---|---|---|
@@ -96,6 +136,7 @@ pytest tests/ -v
 | `route_file` | Ruta al archivo GPX | `routes/sample-route.gpx` |
 | `device_count` | Número de dispositivos virtuales | `20` |
 | `tick_seconds` | Intervalo entre ticks (segundos) | `1.0` |
+| `wall_tick_seconds` | Espera real entre ticks; permite acelerar la simulacion | igual a `tick_seconds` |
 | `batch_size` | Eventos por petición HTTP | `20` |
 | `start_delay_jitter_ms` | Jitter de inicio por dispositivo (ms) | `1500` |
 | `position_noise_meters` | Radio de ruido gaussiano en posición | `4.0` |
@@ -113,18 +154,19 @@ pytest tests/ -v
 | Smoke test local | 20 | Validar pipeline completo |
 | Carga media | 50 | Ajustar batch y latencia |
 | Límite práctico | 100 | Probar saturación y detección |
-| App objetivo | 20–50 | Probar si Tribbu detecta tráfico sintético |
+| App propia de staging | 20-50 | Validar contrato HTTP autorizado |
 
 ---
 
-## Cómo adaptar los endpoints a Tribbu
+## Como adaptar una API propia de staging
 
-1. Captura una petición real de Tribbu con un proxy (mitmproxy, Charles, Burp Suite).
-2. Identifica la URL, método HTTP, cabeceras y formato JSON de la localización.
+1. Documenta el contrato HTTP de tu API propia con Swagger/OpenAPI.
+2. Identifica la URL, metodo HTTP, cabeceras y formato JSON de la localizacion.
 3. Modifica `locationlab/simulator/publisher.py`:
    - `_DEFAULT_HEADERS` → ajusta `User-Agent`, `X-App-Version`, etc.
    - `send()` y `send_batch()` → adapta URLs y formato del payload.
-4. Añade el token de autenticación en `extra_headers` del `simulator_config.json`.
+4. Añade credenciales de prueba mediante variables de entorno; no las guardes
+  en JSON ni las publiques en Git.
 
 ---
 
@@ -134,6 +176,18 @@ Usa [gpx.studio](https://gpx.studio) para crear rutas visualmente y exportarlas
 como GPX. Cópialas en `routes/` y actualiza `route_file` en la configuración.
 
 ---
+
+## Integracion continua
+
+El workflow [.github/workflows/ci.yml](.github/workflows/ci.yml) ejecuta en
+GitHub Actions sobre Windows:
+
+- instalacion de dependencias;
+- `pytest`;
+- compilacion de `locationlab`;
+- `git diff --check`.
+
+Se ejecuta en pushes a `main` y en pull requests.
 
 ## Notas de seguridad
 

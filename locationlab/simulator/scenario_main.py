@@ -10,6 +10,7 @@ Formato del JSON de escenario:
     {
       "api_base_url": "http://localhost:8080",
       "tick_seconds": 2.0,
+    "wall_tick_seconds": 2.0,
       "batch_size": 10,
       "use_batch_endpoint": true,
       "log_every_n_ticks": 30,
@@ -50,6 +51,7 @@ logger = logging.getLogger("scenario")
 DEFAULT_SCENARIO: dict = {
     "api_base_url": "http://localhost:8080",
     "tick_seconds": 2.0,
+    "wall_tick_seconds": 2.0,
     "batch_size": 10,
     "use_batch_endpoint": True,
     "log_every_n_ticks": 30,
@@ -82,6 +84,9 @@ def validate_scenario(cfg: dict) -> None:
         value = cfg.get(name)
         if isinstance(value, bool) or float(value) <= 0:
             raise ValueError(f"'{name}' debe ser positivo.")
+    wall_tick_seconds = cfg.get("wall_tick_seconds", cfg.get("tick_seconds"))
+    if isinstance(wall_tick_seconds, bool) or float(wall_tick_seconds) <= 0:
+        raise ValueError("'wall_tick_seconds' debe ser positivo.")
     if float(cfg.get("max_duration_seconds", 0)) < 0:
         raise ValueError("'max_duration_seconds' no puede ser negativo.")
     devices = cfg.get("devices")
@@ -139,6 +144,7 @@ def run(cfg: dict) -> None:
     )
 
     tick_s = float(cfg["tick_seconds"])
+    wall_tick_s = float(cfg.get("wall_tick_seconds", tick_s))
     batch_size = int(cfg["batch_size"])
     log_every = int(cfg["log_every_n_ticks"])
     max_dur = float(cfg["max_duration_seconds"])
@@ -185,7 +191,7 @@ def run(cfg: dict) -> None:
 
             sim_now += timedelta(seconds=tick_s)
             tick_num += 1
-            time.sleep(tick_s)
+            time.sleep(wall_tick_s)
 
     except KeyboardInterrupt:
         logger.info("Simulación detenida por el usuario.")
