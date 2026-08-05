@@ -16,6 +16,7 @@ from __future__ import annotations
 import random
 from dataclasses import dataclass, field
 from datetime import datetime, timezone
+from typing import Literal
 from pathlib import Path
 
 from locationlab.core.geo import add_noise_meters
@@ -33,12 +34,16 @@ class DeviceScenarioConfig:
     noise_meters: float = 3.5
     speed_variation_pct: float = 1.5
     label: str = ""  # descripción humana (conductor, pasajero 1…)
+    trip_start_utc: datetime | None = None
 
 
 @dataclass
 class _DeviceState:
     cfg: DeviceScenarioConfig
     route: list[TrackPoint]
+
+
+TripPhase = Literal["waiting", "walking", "on_trip", "arrived"]
 
 
 class ScenarioEngine:
@@ -98,6 +103,20 @@ class ScenarioEngine:
             )
 
         return events
+
+    def phase_at(self, device_id: str, now: datetime) -> TripPhase:
+        """Devuelve la fase del trayecto de un dispositivo en tiempo simulado."""
+        state = next((item for item in self._states if item.cfg.device_id == device_id), None)
+        if state is None:
+            raise KeyError(f"Dispositivo no encontrado: {device_id}")
+
+        if now < state.route[0].timestamp_utc:
+            return "waiting"
+        if now >= state.route[-1].timestamp_utc:
+            return "arrived"
+        if state.cfg.trip_start_utc and now >= state.cfg.trip_start_utc:
+            return "on_trip"
+        return "walking"
 
     # ------------------------------------------------------------------
     # Metadatos de tiempo del escenario

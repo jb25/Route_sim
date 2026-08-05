@@ -1,4 +1,4 @@
-from datetime import timezone
+from datetime import datetime, timezone
 from pathlib import Path
 
 from locationlab.simulator.gpx_reader import load_gpx
@@ -103,3 +103,31 @@ def test_scenario_engine_keeps_independent_routes(tmp_path: Path):
     positions = {event.device_id: event.latitude for event in events}
     assert positions["first"] == 43.0
     assert positions["second"] == 43.5
+
+
+def test_scenario_engine_exposes_trip_phases(tmp_path: Path):
+    route = tmp_path / "phases.gpx"
+    _write_gpx(
+        route,
+        """
+    <trkpt lat="43.0" lon="-2.0"><time>2026-08-05T08:00:00Z</time></trkpt>
+    <trkpt lat="43.0" lon="-2.1"><time>2026-08-05T08:00:20Z</time></trkpt>
+    <trkpt lat="43.0" lon="-2.2"><time>2026-08-05T08:00:40Z</time></trkpt>
+""",
+    )
+    engine = ScenarioEngine(
+        [
+            DeviceScenarioConfig(
+                "passenger",
+                str(route),
+                noise_meters=0,
+                trip_start_utc=datetime(2026, 8, 5, 8, 0, 20, tzinfo=timezone.utc),
+            )
+        ]
+    )
+    engine.initialize()
+
+    assert engine.phase_at("passenger", datetime(2026, 8, 5, 7, 59, tzinfo=timezone.utc)) == "waiting"
+    assert engine.phase_at("passenger", datetime(2026, 8, 5, 8, 0, 10, tzinfo=timezone.utc)) == "walking"
+    assert engine.phase_at("passenger", datetime(2026, 8, 5, 8, 0, 20, tzinfo=timezone.utc)) == "on_trip"
+    assert engine.phase_at("passenger", datetime(2026, 8, 5, 8, 1, tzinfo=timezone.utc)) == "arrived"

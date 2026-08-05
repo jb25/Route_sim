@@ -9,8 +9,8 @@ del real. Uso exclusivo en entornos de pruebas **con autorización explícita**.
 ## Estado y alcance
 
 La PoC implementa un pipeline local completo: escenarios GPX multi-ruta,
-simulacion de dispositivos logicos, publicacion HTTP, API FastAPI, SQLite y
-deteccion de grupos. La suite actual tiene 41 tests pasando.
+simulacion de dispositivos logicos, fases de trayecto, publicacion HTTP, API
+FastAPI, SQLite y deteccion de grupos. La suite actual tiene 42 tests pasando.
 
 La ruta recomendada no necesita emuladores Android. Los AVDs son opcionales y
 solo sirven para validar visualmente una aplicacion propia o de staging
@@ -158,6 +158,11 @@ de ejecutar el comando.
 | `use_batch_endpoint` | Usar endpoint batch en vez de uno a uno | `true` |
 | `max_duration_seconds` | Duración máxima (0 = hasta fin de ruta) | `0` |
 | `extra_headers` | Cabeceras HTTP adicionales (auth, cookies…) | `{}` |
+
+En un escenario multi-ruta, cada dispositivo puede incluir `trip_start_utc` para
+marcar el inicio logico del viaje compartido. El motor calcula `waiting`,
+`walking`, `on_trip` y `arrived` con el mismo reloj que genera las coordenadas.
+Este campo no pulsa botones ni llama a APIs privadas de ninguna aplicacion.
 
 ---
 

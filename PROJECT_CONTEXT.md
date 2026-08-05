@@ -314,6 +314,13 @@ Incluye:
 - duracion maxima.
 - cabeceras adicionales.
 - lista de dispositivos y GPX.
+- `trip_start_utc` opcional por dispositivo para marcar cuando pasa de `walking`
+   a `on_trip`; el inicio de GPS sigue determinado por el primer timestamp del GPX.
+
+Las fases calculadas por `ScenarioEngine` son `waiting` antes del GPX, `walking`
+durante el tramo previo, `on_trip` desde `trip_start_utc` y `arrived` al terminar.
+Estas fases no inician ninguna aplicacion externa ni sustituyen un contrato oficial
+de Tribbu.
 
 Los campos `Authorization` y `X-Auth-Token` del escenario estan vacios por defecto. No guardar credenciales reales en JSON ni en Git.
 
@@ -492,7 +499,17 @@ El entorno global de Python no tenia `pytest` disponible en una validacion previ
 - Separar configuracion publica de secretos.
 - Mejorar scripts de ADB y diagnostico de emuladores.
 
-### Fase 4 - Escalado opcional
+### Fase 4 - Contrato de trayecto y adaptadores de app
+
+- Separar el simulador de localizacion de la automatizacion de la aplicacion.
+- Modelar por dispositivo el ciclo `waiting` -> `walking` -> `on_trip` -> `arrived`.
+- Usar un reloj de simulacion unico para alinear inicio de trayecto y GPS.
+- Mantener el adaptador Tribbu deshabilitado hasta disponer de una API, deep link,
+   hook de pruebas o flujo UI autorizado.
+- Validar con un emulador que la app recibe cambios GPS; no asumir que GPS inicia
+   por si solo un viaje o un grupo en el backend.
+
+### Fase 5 - Escalado opcional
 
 Solo si el objetivo lo requiere:
 
@@ -513,6 +530,8 @@ La migracion a .NET descrita en `deep-research-report_8279.md` es una alternativ
 - `gpxpy` para leer GPX.
 - `httpx` para publicar eventos.
 - Rutas por tiempo, no por distancia recorrida en tiempo real.
+- El simulador controla el tiempo de ruta; el inicio de viaje de la app requiere
+   una integracion autorizada independiente.
 - Ruido y variacion aleatorios; la reproducibilidad completa aun no esta centralizada mediante una seed.
 - Estado del detector en memoria y resultados en SQLite.
 

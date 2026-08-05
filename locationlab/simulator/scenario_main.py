@@ -106,6 +106,16 @@ def validate_scenario(cfg: dict) -> None:
         for name in ("noise_meters", "speed_variation_pct"):
             if float(device.get(name, 0)) < 0:
                 raise ValueError(f"'{name}' no puede ser negativo en '{device_id}'.")
+        trip_start = device.get("trip_start_utc")
+        if trip_start is not None:
+            try:
+                parsed = datetime.fromisoformat(str(trip_start).replace("Z", "+00:00"))
+            except ValueError as exc:
+                raise ValueError(
+                    f"'trip_start_utc' no es una fecha ISO valida en '{device_id}'."
+                ) from exc
+            if parsed.tzinfo is None:
+                raise ValueError(f"'trip_start_utc' debe incluir zona horaria en '{device_id}'.")
 
 
 def run(cfg: dict) -> None:
@@ -118,6 +128,11 @@ def run(cfg: dict) -> None:
             noise_meters=float(d.get("noise_meters", 3.5)),
             speed_variation_pct=float(d.get("speed_variation_pct", 1.5)),
             label=d.get("label", d["device_id"]),
+            trip_start_utc=(
+                datetime.fromisoformat(str(d["trip_start_utc"]).replace("Z", "+00:00"))
+                if d.get("trip_start_utc")
+                else None
+            ),
         )
         for d in cfg["devices"]
     ]
