@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="gpx.studio"
+     xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1
+       http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Ruta de prueba – Bilbao Casco Viejo</name>
+    <desc>Ruta de 800 m aprox. por el centro de Bilbao, apta para simular
+          usuarios caminando juntos. Generada para la PoC de LocationLab.</desc>
+    <time>2026-07-12T10:00:00Z</time>
+  </metadata>
+  <trk>
+    <name>Casco Viejo – Arenal – Ayuntamiento</name>
+    <trkseg>
+      <!-- Punto 0: Plaza Nueva -->
+      <trkpt lat="43.25784" lon="-2.92370">
+        <ele>12.0</ele>
+        <time>2026-07-12T10:00:00Z</time>
+      </trkpt>
+      <trkpt lat="43.25810" lon="-2.92410">
+        <ele>11.5</ele>
+        <time>2026-07-12T10:00:15Z</time>
+      </trkpt>
+      <trkpt lat="43.25838" lon="-2.92445">
+        <ele>11.0</ele>
+        <time>2026-07-12T10:00:30Z</time>
+      </trkpt>
+      <trkpt lat="43.25870" lon="-2.92480">
+        <ele>10.5</ele>
+        <time>2026-07-12T10:00:45Z</time>
+      </trkpt>
+      <!-- Puente del Arenal -->
+      <trkpt lat="43.25900" lon="-2.92510">
+        <ele>10.0</ele>
+        <time>2026-07-12T10:01:00Z</time>
+      </trkpt>
+      <trkpt lat="43.25925" lon="-2.92540">
+        <ele>10.0</ele>
+        <time>2026-07-12T10:01:15Z</time>
+      </trkpt>
+      <trkpt lat="43.25950" lon="-2.92565">
+        <ele>9.8</ele>
+        <time>2026-07-12T10:01:30Z</time>
+      </trkpt>
+      <trkpt lat="43.25975" lon="-2.92580">
+        <ele>9.5</ele>
+        <time>2026-07-12T10:01:45Z</time>
+      </trkpt>
+      <!-- Jardines del Arenal -->
+      <trkpt lat="43.26000" lon="-2.92590">
+        <ele>9.0</ele>
+        <time>2026-07-12T10:02:00Z</time>
+      </trkpt>
+      <trkpt lat="43.26025" lon="-2.92600">
+        <ele>8.8</ele>
+        <time>2026-07-12T10:02:15Z</time>
+      </trkpt>
+      <trkpt lat="43.26050" lon="-2.92615">
+        <ele>8.5</ele>
+        <time>2026-07-12T10:02:30Z</time>
+      </trkpt>
+      <trkpt lat="43.26075" lon="-2.92625">
+        <ele>8.2</ele>
+        <time>2026-07-12T10:02:45Z</time>
+      </trkpt>
+      <!-- Ayuntamiento de Bilbao -->
+      <trkpt lat="43.26100" lon="-2.92635">
+        <ele>8.0</ele>
+        <time>2026-07-12T10:03:00Z</time>
+      </trkpt>
+      <trkpt lat="43.26130" lon="-2.92645">
+        <ele>7.8</ele>
+        <time>2026-07-12T10:03:20Z</time>
+      </trkpt>
+      <trkpt lat="43.26160" lon="-2.92650">
+        <ele>7.5</ele>
+        <time>2026-07-12T10:03:40Z</time>
+      </trkpt>
+      <!-- Final: Arenal cruce Gran Vía -->
+      <trkpt lat="43.26190" lon="-2.92640">
+        <ele>7.0</ele>
+        <time>2026-07-12T10:04:00Z</time>
+      </trkpt>
+    </trkseg>
+  </trk>
+</gpx>

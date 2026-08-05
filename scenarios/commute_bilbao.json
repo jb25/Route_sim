@@ -1,0 +1,59 @@
+{
+  "_descripcion": "Escenario de carpool diario: Lemoa → Mondragón (~67 km, ~58 min). El conductor recoge a 3 pasajeros en Amorebieta, Durango y Eibar antes de llegar al polígono industrial.",
+
+  "api_base_url": "http://localhost:8080",
+  "tick_seconds": 2.0,
+  "batch_size": 10,
+  "use_batch_endpoint": true,
+  "log_every_n_ticks": 30,
+  "max_duration_seconds": 0,
+
+  "_COMMENT_extra_headers": "Añade aquí cabeceras de autenticación si apuntas a Tribbu u otra app real.",
+  "extra_headers": {
+    "Authorization": "",
+    "X-Auth-Token": ""
+  },
+
+  "devices": [
+    {
+      "device_id": "conductor-lemoa",
+      "route_file": "routes/commute_driver.gpx",
+      "noise_meters": 3.0,
+      "speed_variation_pct": 1.0,
+      "label": "Conductor – Sale de Lemoa a las 07:00"
+    },
+    {
+      "device_id": "pasajero-amorebieta",
+      "route_file": "routes/commute_passenger1.gpx",
+      "noise_meters": 4.0,
+      "speed_variation_pct": 1.5,
+      "label": "Pasajero 1 – Camina desde casa en Amorebieta, sube al coche ~07:11"
+    },
+    {
+      "device_id": "pasajero-durango",
+      "route_file": "routes/commute_passenger2.gpx",
+      "noise_meters": 4.0,
+      "speed_variation_pct": 1.5,
+      "label": "Pasajero 2 – Camina desde casa en Durango, sube al coche ~07:23"
+    },
+    {
+      "device_id": "pasajero-eibar",
+      "route_file": "routes/commute_passenger3.gpx",
+      "noise_meters": 4.0,
+      "speed_variation_pct": 1.5,
+      "label": "Pasajero 3 – Camina desde casa en Eibar, sube al coche ~07:41"
+    }
+  ],
+
+  "_COMMENT_resumen_ruta": {
+    "origen": "Lemoa, Bizkaia (43.2037, -2.7592)",
+    "recogida_1": "Amorebieta-Etxano (43.2280, -2.7350) – ~07:10 UTC",
+    "recogida_2": "Durango (43.1695, -2.6350) – ~07:22 UTC",
+    "recogida_3": "Eibar (43.1842, -2.4722) – ~07:40 UTC",
+    "destino": "Polígono Industrial Mondragón/Arrasate (43.0648, -2.4940) – ~07:57 UTC",
+    "distancia_total_km": 67,
+    "duracion_total_min": 57,
+    "velocidad_media_carretera": "~90 km/h autopista A-8/AP-8",
+    "velocidad_tramo_local": "~50 km/h BI-635 Lemoa-Amorebieta"
+  }
+}

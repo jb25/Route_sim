@@ -1,0 +1,29 @@
+# Python
+.venv/
+venv/
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+
+# Local runtime data
+locationlab.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Generated Android and probe artifacts
+artifacts/
+*.apk
+
+# Local configuration and secrets
+.env
+.env.*
+!*.env.example
+
+# IDE and OS files
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db

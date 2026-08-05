@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="LocationLab"
+     xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1
+       http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Pasajero 3 – Eibar → Mondragón</name>
+    <desc>Sale de casa en Eibar a pie hasta el punto de recogida.
+          Sube al coche a las 07:41:30 y continúa con el grupo hasta Mondragón.
+          Punto de recogida: 43.1842, -2.4722</desc>
+    <time>2026-07-14T07:38:30Z</time>
+  </metadata>
+  <trk>
+    <name>Pasajero 3</name>
+    <trkseg>
+      <!-- ── A PIE: Casa → Punto de recogida Eibar (~250 m, ~3 min) ── -->
+      <trkpt lat="43.1836" lon="-2.4748"><ele>119</ele><time>2026-07-14T07:38:30Z</time></trkpt>
+      <trkpt lat="43.1839" lon="-2.4737"><ele>117</ele><time>2026-07-14T07:39:15Z</time></trkpt>
+      <trkpt lat="43.1841" lon="-2.4727"><ele>116</ele><time>2026-07-14T07:40:00Z</time></trkpt>
+      <!-- Esperando el coche en el punto de recogida -->
+      <trkpt lat="43.1842" lon="-2.4722"><ele>115</ele><time>2026-07-14T07:40:30Z</time></trkpt>
+      <trkpt lat="43.1842" lon="-2.4722"><ele>115</ele><time>2026-07-14T07:41:00Z</time></trkpt>
+      <trkpt lat="43.1842" lon="-2.4722"><ele>115</ele><time>2026-07-14T07:41:30Z</time></trkpt>
+      <!-- ── EN COCHE: mismo trazado que el conductor desde aquí ── -->
+      <trkpt lat="43.1835" lon="-2.4730"><ele>112</ele><time>2026-07-14T07:42:00Z</time></trkpt>
+      <trkpt lat="43.1745" lon="-2.4782"><ele>145</ele><time>2026-07-14T07:44:30Z</time></trkpt>
+      <trkpt lat="43.1540" lon="-2.4840"><ele>185</ele><time>2026-07-14T07:47:00Z</time></trkpt>
+      <trkpt lat="43.1290" lon="-2.4882"><ele>215</ele><time>2026-07-14T07:49:30Z</time></trkpt>
+      <trkpt lat="43.1060" lon="-2.4912"><ele>230</ele><time>2026-07-14T07:52:00Z</time></trkpt>
+      <trkpt lat="43.0855" lon="-2.4928"><ele>210</ele><time>2026-07-14T07:54:00Z</time></trkpt>
+      <trkpt lat="43.0715" lon="-2.4938"><ele>190</ele><time>2026-07-14T07:56:00Z</time></trkpt>
+      <!-- DESTINO: Polígono Industrial Mondragón -->
+      <trkpt lat="43.0648" lon="-2.4940"><ele>175</ele><time>2026-07-14T07:57:30Z</time></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

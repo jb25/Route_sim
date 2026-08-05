@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<gpx version="1.1" creator="LocationLab"
+     xmlns="http://www.topografix.com/GPX/1/1"
+     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+     xsi:schemaLocation="http://www.topografix.com/GPX/1/1
+       http://www.topografix.com/GPX/1/1/gpx.xsd">
+  <metadata>
+    <name>Conductor – Lemoa → Mondragón</name>
+    <desc>Ruta completa del conductor. Sale de Lemoa (Bizkaia), recoge pasajeros en
+          Amorebieta, Durango y Eibar, y llega al polígono industrial de Mondragón.
+          ~67 km | ~57 min | Salida 07:00 UTC</desc>
+    <time>2026-07-14T07:00:00Z</time>
+  </metadata>
+  <trk>
+    <name>Conductor</name>
+    <trkseg>
+      <!-- ── TRAMO 1: Lemoa → Amorebieta (~8 km, carretera local BI-635) ── -->
+      <trkpt lat="43.2037" lon="-2.7592"><ele>178</ele><time>2026-07-14T07:00:00Z</time></trkpt>
+      <trkpt lat="43.2090" lon="-2.7530"><ele>162</ele><time>2026-07-14T07:02:30Z</time></trkpt>
+      <trkpt lat="43.2160" lon="-2.7465"><ele>145</ele><time>2026-07-14T07:05:00Z</time></trkpt>
+      <trkpt lat="43.2225" lon="-2.7410"><ele>128</ele><time>2026-07-14T07:07:30Z</time></trkpt>
+      <trkpt lat="43.2265" lon="-2.7378"><ele>115</ele><time>2026-07-14T07:09:00Z</time></trkpt>
+      <!-- Reduciendo velocidad, entrando en Amorebieta -->
+      <trkpt lat="43.2278" lon="-2.7358"><ele>108</ele><time>2026-07-14T07:09:45Z</time></trkpt>
+      <!-- PICKUP 1 – Parada Amorebieta (3 min) -->
+      <trkpt lat="43.2280" lon="-2.7350"><ele>105</ele><time>2026-07-14T07:10:00Z</time></trkpt>
+      <trkpt lat="43.2280" lon="-2.7350"><ele>105</ele><time>2026-07-14T07:10:30Z</time></trkpt>
+      <trkpt lat="43.2280" lon="-2.7350"><ele>105</ele><time>2026-07-14T07:11:00Z</time></trkpt>
+      <!-- Salida Amorebieta, acelerando hacia A-8 -->
+      <trkpt lat="43.2285" lon="-2.7338"><ele>103</ele><time>2026-07-14T07:11:30Z</time></trkpt>
+      <!-- ── TRAMO 2: A-8 Amorebieta → Durango (~15 km, autopista) ── -->
+      <trkpt lat="43.2240" lon="-2.7140"><ele>98</ele><time>2026-07-14T07:13:30Z</time></trkpt>
+      <trkpt lat="43.2150" lon="-2.6880"><ele>92</ele><time>2026-07-14T07:15:30Z</time></trkpt>
+      <trkpt lat="43.2020" lon="-2.6640"><ele>88</ele><time>2026-07-14T07:17:30Z</time></trkpt>
+      <trkpt lat="43.1860" lon="-2.6490"><ele>84</ele><time>2026-07-14T07:19:30Z</time></trkpt>
+      <!-- Salida A-8 hacia Durango -->
+      <trkpt lat="43.1748" lon="-2.6388"><ele>120</ele><time>2026-07-14T07:21:00Z</time></trkpt>
+      <trkpt lat="43.1710" lon="-2.6358"><ele>132</ele><time>2026-07-14T07:21:45Z</time></trkpt>
+      <!-- PICKUP 2 – Parada Durango (90 s) -->
+      <trkpt lat="43.1695" lon="-2.6350"><ele>138</ele><time>2026-07-14T07:22:30Z</time></trkpt>
+      <trkpt lat="43.1695" lon="-2.6350"><ele>138</ele><time>2026-07-14T07:23:00Z</time></trkpt>
+      <trkpt lat="43.1695" lon="-2.6350"><ele>138</ele><time>2026-07-14T07:23:30Z</time></trkpt>
+      <!-- Salida Durango, retomando A-8/AP-8 -->
+      <trkpt lat="43.1700" lon="-2.6338"><ele>135</ele><time>2026-07-14T07:24:00Z</time></trkpt>
+      <!-- ── TRAMO 3: AP-8 Durango → Eibar (~25 km, autopista) ── -->
+      <trkpt lat="43.1688" lon="-2.6120"><ele>95</ele><time>2026-07-14T07:26:00Z</time></trkpt>
+      <trkpt lat="43.1682" lon="-2.5830"><ele>88</ele><time>2026-07-14T07:28:30Z</time></trkpt>
+      <trkpt lat="43.1700" lon="-2.5530"><ele>82</ele><time>2026-07-14T07:31:00Z</time></trkpt>
+      <trkpt lat="43.1728" lon="-2.5235"><ele>78</ele><time>2026-07-14T07:33:30Z</time></trkpt>
+      <trkpt lat="43.1782" lon="-2.4990"><ele>75</ele><time>2026-07-14T07:35:30Z</time></trkpt>
+      <!-- Llegando a Eibar, bajando velocidad -->
+      <trkpt lat="43.1832" lon="-2.4800"><ele>95</ele><time>2026-07-14T07:37:30Z</time></trkpt>
+      <trkpt lat="43.1840" lon="-2.4738"><ele>108</ele><time>2026-07-14T07:39:30Z</time></trkpt>
+      <!-- PICKUP 3 – Parada Eibar (90 s) -->
+      <trkpt lat="43.1842" lon="-2.4722"><ele>115</ele><time>2026-07-14T07:40:30Z</time></trkpt>
+      <trkpt lat="43.1842" lon="-2.4722"><ele>115</ele><time>2026-07-14T07:41:00Z</time></trkpt>
+      <trkpt lat="43.1842" lon="-2.4722"><ele>115</ele><time>2026-07-14T07:41:30Z</time></trkpt>
+      <!-- ── TRAMO 4: Eibar → Mondragón (~20 km, bajando hacia el sur) ── -->
+      <trkpt lat="43.1835" lon="-2.4730"><ele>112</ele><time>2026-07-14T07:42:00Z</time></trkpt>
+      <trkpt lat="43.1745" lon="-2.4782"><ele>145</ele><time>2026-07-14T07:44:30Z</time></trkpt>
+      <trkpt lat="43.1540" lon="-2.4840"><ele>185</ele><time>2026-07-14T07:47:00Z</time></trkpt>
+      <trkpt lat="43.1290" lon="-2.4882"><ele>215</ele><time>2026-07-14T07:49:30Z</time></trkpt>
+      <trkpt lat="43.1060" lon="-2.4912"><ele>230</ele><time>2026-07-14T07:52:00Z</time></trkpt>
+      <trkpt lat="43.0855" lon="-2.4928"><ele>210</ele><time>2026-07-14T07:54:00Z</time></trkpt>
+      <trkpt lat="43.0715" lon="-2.4938"><ele>190</ele><time>2026-07-14T07:56:00Z</time></trkpt>
+      <!-- DESTINO: Polígono Industrial Mondragón -->
+      <trkpt lat="43.0648" lon="-2.4940"><ele>175</ele><time>2026-07-14T07:57:30Z</time></trkpt>
+    </trkseg>
+  </trk>
+</gpx>

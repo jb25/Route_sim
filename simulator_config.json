@@ -1,0 +1,23 @@
+{
+  "api_base_url": "http://localhost:8080",
+  "route_file": "routes/sample-route.gpx",
+  "device_count": 20,
+  "tick_seconds": 1.0,
+  "batch_size": 20,
+  "start_delay_jitter_ms": 1500,
+  "position_noise_meters": 4.0,
+  "speed_variation_pct": 2.0,
+  "use_batch_endpoint": true,
+  "log_every_n_ticks": 10,
+  "max_duration_seconds": 0,
+
+  "_COMMENT_extra_headers": [
+    "Añade aquí las cabeceras de autenticación de la app objetivo (Tribbu).",
+    "Ejemplos: Authorization, Cookie, X-Auth-Token, X-Session-Id.",
+    "IMPORTANTE: solo para uso en entorno de pruebas autorizado."
+  ],
+  "extra_headers": {
+    "Authorization": "",
+    "X-Auth-Token": ""
+  }
+}

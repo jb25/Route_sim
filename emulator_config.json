@@ -1,0 +1,41 @@
+{
+  "_descripcion": "Mapeo de emuladores Android a dispositivos del escenario de carpool.",
+
+  "scenario": "scenarios/commute_bilbao.json",
+  "speed": 1,
+
+  "_COMMENT_seriales": [
+    "Android asigna puertos ADB secuenciales: 5554, 5556, 5558, 5560.",
+    "Ejecuta 'python inject_gps.py --detect' para ver los seriales reales.",
+    "Si usas un solo AVD para descubrir la API, pon solo ese serial."
+  ],
+
+  "emulator_map": [
+    {
+      "serial": "emulator-5554",
+      "device_id": "conductor-lemoa",
+      "label": "Conductor – cuenta Tribbu 1"
+    },
+    {
+      "serial": "emulator-5556",
+      "device_id": "pasajero-amorebieta",
+      "label": "Pasajero 1 – cuenta Tribbu 2"
+    },
+    {
+      "serial": "emulator-5558",
+      "device_id": "pasajero-durango",
+      "label": "Pasajero 2 – cuenta Tribbu 3"
+    },
+    {
+      "serial": "emulator-5560",
+      "device_id": "pasajero-eibar",
+      "label": "Pasajero 3 – cuenta Tribbu 4"
+    }
+  ],
+
+  "_COMMENT_recursos": {
+    "RAM_por_emulador_MB": 768,
+    "total_4_emuladores_MB": 3072,
+    "recomendacion": "Necesitas al menos 8 GB de RAM. Lanza con launch_emulators.ps1."
+  }
+}
