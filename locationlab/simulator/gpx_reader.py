@@ -60,14 +60,30 @@ def load_gpx(path: str | Path) -> list[TrackPoint]:
             )
         )
 
-    # Si no hay timestamps, asignar secuenciales desde ahora
+    # Si falta algun timestamp, usar una linea temporal sintetica coherente para
+    # toda la ruta en lugar de mezclar instantes reales y artificiales.
     if not points:
         raise ValueError("El archivo GPX no contiene puntos.")
 
     if any(p.timestamp_utc is None for p in points):
-        t0 = datetime.now(timezone.utc)
-        for i, p in enumerate(points):
-            p.timestamp_utc = t0 + timedelta(seconds=i)
+        existing = next((p.timestamp_utc for p in points if p.timestamp_utc), None)
+        if existing is not None:
+            t0 = (
+                existing.astimezone(timezone.utc)
+                if existing.tzinfo
+                else existing.replace(tzinfo=timezone.utc)
+            )
+        else:
+            t0 = datetime.now(timezone.utc)
+        points = [
+            TrackPoint(
+                latitude=p.latitude,
+                longitude=p.longitude,
+                timestamp_utc=t0 + timedelta(seconds=i),
+                elevation=p.elevation,
+            )
+            for i, p in enumerate(points)
+        ]
     else:
         # Normalizar a UTC
         points = [
@@ -83,6 +99,7 @@ def load_gpx(path: str | Path) -> list[TrackPoint]:
             )
             for p in points
         ]
-        points.sort(key=lambda p: p.timestamp_utc)
+
+    points.sort(key=lambda p: p.timestamp_utc)
 
     return points

@@ -10,6 +10,7 @@ Swagger UI disponible en:
 from __future__ import annotations
 
 import uuid
+import threading
 from datetime import datetime, timezone
 from typing import Annotated
 
@@ -43,6 +44,7 @@ _detector = GroupDetector(
         max_speed_diff_mps=2.0,
     )
 )
+_detection_lock = threading.Lock()
 
 
 @app.on_event("startup")
@@ -83,7 +85,7 @@ def post_location(event: LocationEvent):
         speed_mps=event.speed_meters_per_second,
         bearing_degrees=event.bearing_degrees,
     )
-    _run_group_detection()
+    _run_group_detection(event.timestamp_utc)
     return JSONResponse(
         status_code=202,
         content={"accepted": True, "id": row_id, "device_id": event.device_id},
@@ -118,7 +120,8 @@ def post_locations_batch(batch: LocationEventBatch):
         for e in batch.events
     ]
     count = db.insert_events_batch(rows)
-    _run_group_detection()
+    reference_timestamp = max(event.timestamp_utc for event in batch.events)
+    _run_group_detection(reference_timestamp)
     return {"accepted": True, "count": count}
 
 
@@ -188,29 +191,38 @@ def get_current_groups():
 # Helpers internos
 # ---------------------------------------------------------------------------
 
-def _run_group_detection() -> None:
+def _run_group_detection(reference_timestamp: datetime) -> None:
     """
     Obtiene muestras recientes y ejecuta un tick del detector.
     Persiste grupos nuevos en SQLite.
     """
-    raw = db.get_recent_samples(window_seconds=15)
-    if len(raw) < 2:
-        return
-
-    samples = [
-        Sample(
-            device_id=r["device_id"],
-            latitude=r["latitude"],
-            longitude=r["longitude"],
-            timestamp_utc=datetime.fromisoformat(r["timestamp_utc"]),
-            speed_meters_per_second=r["speed_mps"],
-            bearing_degrees=r["bearing_degrees"],
+    with _detection_lock:
+        raw = db.get_recent_samples(
+            window_seconds=15,
+            reference_timestamp=reference_timestamp,
         )
-        for r in raw
-    ]
+        if len(raw) < 2:
+            return
 
-    consolidated = _detector.tick(samples)
-    now = datetime.now(timezone.utc)
-    for group in consolidated:
-        group_id = str(uuid.uuid4())[:8]
-        db.insert_group(group_id, list(group), now)
+        samples = [
+            Sample(
+                device_id=r["device_id"],
+                latitude=r["latitude"],
+                longitude=r["longitude"],
+                timestamp_utc=datetime.fromisoformat(r["timestamp_utc"]),
+                speed_meters_per_second=r["speed_mps"],
+                bearing_degrees=r["bearing_degrees"],
+            )
+            for r in raw
+        ]
+
+        consolidated = _detector.tick(samples)
+        for group in consolidated:
+            members = ",".join(sorted(group))
+            group_id = uuid.uuid5(uuid.NAMESPACE_URL, f"locationlab:{members}").hex[:8]
+            db.insert_group(
+                group_id,
+                list(group),
+                detected_at=reference_timestamp,
+                last_seen_utc=reference_timestamp,
+            )

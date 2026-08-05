@@ -221,7 +221,7 @@ Devuelve el historial del dispositivo. `limit` esta restringido entre 1 y 1000.
 
 ### `GET /api/groups/current`
 
-Devuelve grupos guardados en SQLite. El nombre indica grupos actuales, pero la implementacion actual devuelve registros historicos recientes sin un filtro de actividad.
+Devuelve grupos guardados en SQLite cuya ultima actividad esta dentro de la ventana actual. La identidad se estabiliza por el conjunto canonico de dispositivos para evitar duplicados por tick.
 
 Swagger esta disponible cuando se arranca la API en `http://localhost:8080/docs`.
 
@@ -372,37 +372,20 @@ El estado del detector vive en memoria dentro del proceso FastAPI. No esta prepa
 
 ## 13. Riesgos y problemas conocidos
 
-### Prioridad alta
-
-1. **Ventana temporal incompatible con rutas historicas.**
-   `database.get_recent_samples()` compara `timestamp_utc` con `datetime('now')`. Las rutas del escenario son fechas simuladas fijas. Si se ejecutan en otra fecha, las muestras pueden quedar fuera de la ventana y no se detectan grupos. Debe decidirse si la ventana usa el tiempo simulado o `received_utc`.
-
-2. **`/api/groups/current` no representa realmente el estado actual.**
-   La tabla guarda detecciones, pero no hay cierre, expiracion ni upsert de grupos. El endpoint devuelve historico y puede contener duplicados.
-
 ### Prioridad media
 
-3. **Detector en memoria por proceso.**
+1. **Detector en memoria por proceso.**
    Con varios workers, cada proceso acumula persistencia de forma independiente.
 
-4. **GPX con timestamps mixtos.**
-   Si solo algunos puntos tienen fecha, el lector asigna fechas a los faltantes pero no garantiza normalizacion y orden posterior.
-
-5. **Reintentos HTTP demasiado amplios.**
-   `publisher.py` reintenta respuestas 4xx aunque normalmente son errores permanentes de payload o autenticacion. Falta backoff para errores transitorios.
-
-6. **Configuracion sin esquema de validacion.**
-   Valores negativos, `tick_seconds` cero, `batch_size` cero, escenarios incompletos o rutas invalidas producen errores tardios o poco claros.
-
-7. **Persistencia sin politica de limpieza.**
+2. **Persistencia sin politica de limpieza.**
    `location_events` y `detected_groups` crecen indefinidamente.
 
 ### Prioridad baja
 
-8. **Scripts de AVD especificos de una maquina.**
+3. **Scripts de AVD especificos de una maquina.**
    Las rutas del SDK y la imagen Android estan fijadas a un entorno Windows concreto.
 
-9. **Uso de cabeceras que imitan un cliente Android.**
+4. **Uso de cabeceras que imitan un cliente Android.**
    Solo debe utilizarse contra sistemas propios o autorizados y con datos de prueba.
 
 ## 14. Tests y validacion
@@ -412,20 +395,17 @@ El estado del detector vive en memoria dentro del proceso FastAPI. No esta prepa
 - `tests/test_geo.py`: Haversine, bearing y ruido.
 - `tests/test_group_detector.py`: distancia, desfase, persistencia, separacion y ruido.
 - `tests/test_interpolator.py`: puntos inicial/final, midpoint, velocidad, bearing y offsets.
+- `tests/test_pipeline_regressions.py`: persistencia temporal, grupos estables, validacion de escenarios y reintentos HTTP.
 
 ### Huecos de cobertura
 
-Se recomienda añadir:
+Quedan como ampliaciones:
 
 - tests de `load_gpx()` con GPX vacio, sin timestamps, timestamps mixtos y timezone;
 - tests de `ScenarioEngine` con varias rutas;
 - tests de `LocationEvent` y batch;
-- tests de `database.py` usando una base temporal;
 - tests de FastAPI para todos los endpoints;
-- tests de publisher con `httpx.MockTransport`;
-- test que reproduzca rutas historicas frente a la ventana temporal;
-- test que garantice que un grupo actual no se duplica en cada tick;
-- test de configuracion invalida.
+- pruebas adicionales de GPX mixto y `ScenarioEngine` con varias rutas.
 
 El entorno global de Python no tenia `pytest` disponible en una validacion previa. El proyecto contiene `.venv`; la comprobacion correcta debe realizarse con el interprete del entorno virtual.
 

@@ -6,6 +6,7 @@ Soporta endpoint unitario y por lotes.
 from __future__ import annotations
 
 import logging
+import time
 from datetime import datetime
 
 import httpx
@@ -43,12 +44,14 @@ class ApiPublisher:
         use_batch: bool = True,
         timeout: float = 10.0,
         max_retries: int = 2,
+        backoff_seconds: float = 0.25,
         extra_headers: dict[str, str] | None = None,
     ) -> None:
         self._base_url = base_url.rstrip("/")
         self._use_batch = use_batch
         self._timeout = timeout
         self._max_retries = max_retries
+        self._backoff_seconds = max(0.0, backoff_seconds)
         headers = {**_DEFAULT_HEADERS, **(extra_headers or {})}
         self._client = httpx.Client(headers=headers, timeout=timeout)
 
@@ -67,6 +70,9 @@ class ApiPublisher:
         Envía *events* en lotes de *batch_size*.
         Devuelve un resumen: {sent, failed, batches}.
         """
+        if batch_size <= 0:
+            raise ValueError("batch_size debe ser positivo.")
+
         sent = 0
         failed = 0
         batches = 0
@@ -97,6 +103,7 @@ class ApiPublisher:
                 r = self._client.post(url, json=payload)
                 if r.status_code in (200, 201, 202):
                     return True
+                transient = r.status_code in (408, 429) or r.status_code >= 500
                 logger.warning(
                     "POST %s → HTTP %s (intento %d/%d)",
                     url,
@@ -104,6 +111,8 @@ class ApiPublisher:
                     attempt + 1,
                     self._max_retries + 1,
                 )
+                if not transient:
+                    return False
             except httpx.RequestError as exc:
                 logger.warning(
                     "Error de conexión %s (intento %d/%d): %s",
@@ -112,6 +121,8 @@ class ApiPublisher:
                     self._max_retries + 1,
                     exc,
                 )
+            if attempt < self._max_retries:
+                time.sleep(min(self._backoff_seconds * (2 ** attempt), 5.0))
         return False
 
 

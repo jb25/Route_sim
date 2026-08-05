@@ -35,6 +35,7 @@ import logging
 import time
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
+from urllib.parse import urlparse
 
 from locationlab.simulator.publisher import ApiPublisher
 from locationlab.simulator.scenario import DeviceScenarioConfig, ScenarioEngine
@@ -64,13 +65,46 @@ def load_scenario(path: str) -> dict:
     if not scenario_path.exists():
         raise FileNotFoundError(f"Archivo de escenario no encontrado: {path}")
     with scenario_path.open("r", encoding="utf-8") as f:
-        cfg.update(json.load(f))
+        loaded = json.load(f)
+    if not isinstance(loaded, dict):
+        raise ValueError("El escenario debe ser un objeto JSON.")
+    cfg.update(loaded)
+    validate_scenario(cfg)
     return cfg
 
 
+def validate_scenario(cfg: dict) -> None:
+    """Valida toda la configuracion antes de cargar rutas o iniciar HTTP."""
+    parsed_url = urlparse(str(cfg.get("api_base_url", "")))
+    if parsed_url.scheme not in {"http", "https"} or not parsed_url.netloc:
+        raise ValueError("'api_base_url' debe ser una URL HTTP/HTTPS valida.")
+    for name in ("tick_seconds", "batch_size", "log_every_n_ticks"):
+        value = cfg.get(name)
+        if isinstance(value, bool) or float(value) <= 0:
+            raise ValueError(f"'{name}' debe ser positivo.")
+    if float(cfg.get("max_duration_seconds", 0)) < 0:
+        raise ValueError("'max_duration_seconds' no puede ser negativo.")
+    devices = cfg.get("devices")
+    if not isinstance(devices, list) or not devices:
+        raise ValueError("El escenario no define ningun dispositivo en 'devices'.")
+    device_ids: set[str] = set()
+    for device in devices:
+        if not isinstance(device, dict):
+            raise ValueError("Cada dispositivo debe ser un objeto JSON.")
+        device_id = str(device.get("device_id", "")).strip()
+        route_file = str(device.get("route_file", "")).strip()
+        if not device_id or device_id in device_ids:
+            raise ValueError("Los dispositivos deben tener IDs no vacios y unicos.")
+        if not route_file or not Path(route_file).exists():
+            raise ValueError(f"Ruta GPX no encontrada para '{device_id}': {route_file}")
+        device_ids.add(device_id)
+        for name in ("noise_meters", "speed_variation_pct"):
+            if float(device.get(name, 0)) < 0:
+                raise ValueError(f"'{name}' no puede ser negativo en '{device_id}'.")
+
+
 def run(cfg: dict) -> None:
-    if not cfg.get("devices"):
-        raise ValueError("El escenario no define ningún dispositivo en 'devices'.")
+    validate_scenario(cfg)
 
     device_configs = [
         DeviceScenarioConfig(

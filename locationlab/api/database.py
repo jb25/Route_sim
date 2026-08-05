@@ -7,7 +7,7 @@ from __future__ import annotations
 import sqlite3
 import threading
 from contextlib import contextmanager
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 from typing import Generator
 
@@ -63,10 +63,20 @@ def init_db() -> None:
                 group_id     TEXT    NOT NULL,
                 device_ids   TEXT    NOT NULL,
                 detected_at  TEXT    NOT NULL,
-                member_count INTEGER NOT NULL
+                member_count INTEGER NOT NULL,
+                last_seen_utc TEXT NOT NULL DEFAULT ''
             );
             """
         )
+        columns = {row[1] for row in conn.execute("PRAGMA table_info(detected_groups)")}
+        if "last_seen_utc" not in columns:
+            conn.execute(
+                "ALTER TABLE detected_groups ADD COLUMN last_seen_utc TEXT NOT NULL DEFAULT ''"
+            )
+            conn.execute(
+                "UPDATE detected_groups SET last_seen_utc = detected_at "
+                "WHERE last_seen_utc = ''"
+            )
 
 
 # ---------------------------------------------------------------------------
@@ -91,16 +101,8 @@ def insert_event(
                  accuracy_meters, speed_mps, bearing_degrees, received_utc)
             VALUES (?, ?, ?, ?, ?, ?, ?, ?)
             """,
-            (
-                device_id,
-                latitude,
-                longitude,
-                timestamp_utc.isoformat(),
-                accuracy_meters,
-                speed_mps,
-                bearing_degrees,
-                received,
-            ),
+            (device_id, latitude, longitude, timestamp_utc.isoformat(),
+             accuracy_meters, speed_mps, bearing_degrees, received),
         )
         return cur.lastrowid  # type: ignore[return-value]
 
@@ -134,39 +136,68 @@ def insert_events_batch(events: list[dict]) -> int:
         return len(rows)
 
 
-def insert_group(group_id: str, device_ids: list[str], detected_at: datetime) -> None:
+def insert_group(
+    group_id: str,
+    device_ids: list[str],
+    detected_at: datetime,
+    last_seen_utc: datetime | None = None,
+) -> None:
+    device_key = ",".join(sorted(device_ids))
+    last_seen = (last_seen_utc or detected_at).isoformat()
     with _lock, get_connection() as conn:
-        conn.execute(
+        updated = conn.execute(
             """
-            INSERT INTO detected_groups (group_id, device_ids, detected_at, member_count)
-            VALUES (?, ?, ?, ?)
+            UPDATE detected_groups
+            SET group_id = ?, detected_at = ?, member_count = ?, last_seen_utc = ?
+            WHERE device_ids = ?
             """,
-            (group_id, ",".join(sorted(device_ids)), detected_at.isoformat(), len(device_ids)),
+            (group_id, detected_at.isoformat(), len(device_ids), last_seen, device_key),
         )
+        if updated.rowcount == 0:
+            conn.execute(
+                """
+                INSERT INTO detected_groups
+                    (group_id, device_ids, detected_at, member_count, last_seen_utc)
+                VALUES (?, ?, ?, ?, ?)
+                """,
+                (group_id, device_key, detected_at.isoformat(), len(device_ids), last_seen),
+            )
 
 
 # ---------------------------------------------------------------------------
 # Operaciones de lectura
 # ---------------------------------------------------------------------------
 
-def get_recent_samples(window_seconds: int = 15) -> list[dict]:
-    """Devuelve la muestra más reciente de cada dispositivo en la ventana dada."""
+def get_recent_samples(
+    window_seconds: int = 15,
+    reference_timestamp: datetime | None = None,
+) -> list[dict]:
+    """Devuelve una muestra por dispositivo alrededor del tiempo simulado indicado."""
     with get_connection() as conn:
+        reference = reference_timestamp or _latest_event_timestamp(conn)
+        if reference is None:
+            reference = datetime.now(timezone.utc)
+        window_start = reference - timedelta(seconds=window_seconds)
         rows = conn.execute(
             """
-            SELECT device_id,
-                   latitude,
-                   longitude,
-                   timestamp_utc,
-                   speed_mps,
-                   bearing_degrees
-            FROM location_events
-            WHERE timestamp_utc >= datetime('now', ? || ' seconds')
-            GROUP BY device_id
-            HAVING timestamp_utc = MAX(timestamp_utc)
+            WITH ranked AS (
+                SELECT device_id, latitude, longitude, timestamp_utc,
+                       speed_mps, bearing_degrees,
+                       ROW_NUMBER() OVER (
+                           PARTITION BY device_id
+                           ORDER BY datetime(timestamp_utc) DESC, id DESC
+                       ) AS row_number
+                FROM location_events
+                WHERE datetime(timestamp_utc) >= datetime(?)
+                  AND datetime(timestamp_utc) <= datetime(?)
+            )
+            SELECT device_id, latitude, longitude, timestamp_utc,
+                   speed_mps, bearing_degrees
+            FROM ranked
+            WHERE row_number = 1
             ORDER BY device_id
             """,
-            (f"-{window_seconds}",),
+            (window_start.isoformat(), reference.isoformat()),
         ).fetchall()
     return [dict(r) for r in rows]
 
@@ -211,14 +242,29 @@ def get_known_devices() -> list[dict]:
     return [dict(r) for r in rows]
 
 
-def get_current_groups() -> list[dict]:
+def get_current_groups(
+    reference_timestamp: datetime | None = None,
+    window_seconds: int = 15,
+) -> list[dict]:
+    """Devuelve grupos cuya ultima muestra sigue dentro de la ventana activa."""
     with get_connection() as conn:
+        reference = reference_timestamp or _latest_event_timestamp(conn)
+        if reference is None:
+            reference = datetime.now(timezone.utc)
+        window_start = reference - timedelta(seconds=window_seconds)
         rows = conn.execute(
             """
             SELECT group_id, device_ids, detected_at, member_count
             FROM detected_groups
+            WHERE datetime(last_seen_utc) >= datetime(?)
             ORDER BY detected_at DESC
             LIMIT 50
             """,
+            (window_start.isoformat(),),
         ).fetchall()
     return [dict(r) for r in rows]
+
+
+def _latest_event_timestamp(conn: sqlite3.Connection) -> datetime | None:
+    value = conn.execute("SELECT MAX(timestamp_utc) FROM location_events").fetchone()[0]
+    return datetime.fromisoformat(value) if value else None
