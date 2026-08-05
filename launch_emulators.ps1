@@ -3,7 +3,7 @@
 #
 # Uso:
 #   .\launch_emulators.ps1           # lanza los 4
-#   .\launch_emulators.ps1 -Count 1  # solo LL_conductor (prueba de login)
+#   .\launch_emulators.ps1 -Count 1  # smoke test con un dispositivo
 #   .\launch_emulators.ps1 -WipeData # arranca limpiando datos del AVD
 #
 # Puertos ADB:
@@ -82,5 +82,5 @@ if ($Elapsed -ge $Timeout) {
 }
 
 Write-Host ''
-Write-Host 'Siguiente paso: ejecuta probe_login.py para capturar la pantalla de la app'
-Write-Host '  python probe_login.py --serial emulator-5554'
+Write-Host 'Siguiente paso: detecta los dispositivos ADB e inyecta GPS'
+Write-Host '  python inject_gps.py --detect'

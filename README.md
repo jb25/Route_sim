@@ -10,7 +10,7 @@ del real. Uso exclusivo en entornos de pruebas **con autorización explícita**.
 
 La PoC implementa un pipeline local completo: escenarios GPX multi-ruta,
 simulacion de dispositivos logicos, publicacion HTTP, API FastAPI, SQLite y
-deteccion de grupos. La suite actual tiene 40 tests pasando.
+deteccion de grupos. La suite actual tiene 41 tests pasando.
 
 La ruta recomendada no necesita emuladores Android. Los AVDs son opcionales y
 solo sirven para validar visualmente una aplicacion propia o de staging

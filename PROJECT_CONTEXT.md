@@ -52,7 +52,6 @@ El proyecto no pretende ser una aplicacion final de movilidad ni una herramienta
 - Detector de grupos por proximidad, desfase temporal, velocidad y persistencia.
 - Scripts de creacion y lanzamiento de AVDs.
 - Inyeccion de posiciones via ADB.
-- Captura de screenshot y jerarquia UI para exploracion de login.
 - Tests unitarios, de regresion e integracion para geo, interpolacion, GPX,
   escenarios, publicacion HTTP, API, SQLite y detector de grupos.
 - Validacion manual del escenario de carpooling y health check de la API.
@@ -124,14 +123,11 @@ Route_sim_2026/
 │   ├── test_interpolator.py
 │   ├── test_gpx_reader.py
 │   └── test_pipeline_regressions.py
-├── create_avds.py              # Crea archivos AVD manualmente en Windows
 ├── setup_avds.ps1              # Preparacion de AVDs
 ├── launch_emulators.ps1        # Lanzamiento de emuladores
-├── write_launch_script.py      # Generacion de scripts de lanzamiento
 ├── inject_gps.py               # Inyeccion GPS via ADB
 ├── run_demo.py                 # Demo visual del carpooling
 ├── validate_scenario.py        # Validacion manual del escenario
-├── probe_login.py              # Sonda de pantalla/UI via ADB
 └── show_results.py             # Consulta/visualizacion de resultados
 ```
 
@@ -183,10 +179,9 @@ API de validacion local.
 
 #### Scripts de Android
 
-- `create_avds.py` escribe manualmente los `.ini` de cuatro AVDs.
+- `setup_avds.ps1` instala componentes y crea los AVDs configurados.
 - `launch_emulators.ps1` arranca los emuladores.
 - `inject_gps.py` busca emuladores ADB y ejecuta `adb emu geo fix` en paralelo.
-- `probe_login.py` comprueba el dispositivo, instala APK opcional, abre un package y guarda screenshot/UI XML.
 
 ## 6. Flujo funcional
 
@@ -326,7 +321,7 @@ Los campos `Authorization` y `X-Auth-Token` del escenario estan vacios por defec
 
 Controla ruta comun, numero de dispositivos, jitter inicial, ruido, variacion de velocidad y cabeceras.
 
-### AVD `create_avds.py`
+### AVD y ADB
 
 Esta orientado a Windows y presupone:
 
