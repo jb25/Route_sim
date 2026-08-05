@@ -78,7 +78,7 @@ Write-Host "`n=== Creando $Count AVDs ==="
 $avdNames = @("conductor", "pasajero1", "pasajero2", "pasajero3")
 
 for ($i = 0; $i -lt $Count; $i++) {
-    $avdName = "LocationLab_$($avdNames[$i])"
+    $avdName = "LL_$($avdNames[$i])"
     Write-Host "  Creando AVD: $avdName ..."
 
     # Borrar si ya existe
@@ -106,7 +106,7 @@ if (Test-Path $cfgPath) {
         $newMap += [PSCustomObject]@{
             serial    = $serials[$i]
             device_id = $deviceMap[$i]
-            avd_name  = "LocationLab_$($avdNameMap[$i])"
+            avd_name  = "LL_$($avdNameMap[$i])"
             label     = $cfg.emulator_map[$i].label
         }
     }
@@ -123,7 +123,7 @@ Write-Host ""
 Write-Host "1. Lanza los $Count emuladores:"
 for ($i = 0; $i -lt $Count; $i++) {
     $port = 5554 + ($i * 2)
-    $avd = "LocationLab_$($avdNames[$i])"
+    $avd = "LL_$($avdNames[$i])"
     Write-Host "   Start-Process '$emulator' -ArgumentList '-avd $avd -port $port -memory 768 -no-boot-anim -no-audio -gpu swiftshader_indirect -no-snapshot'"
 }
 Write-Host ""
