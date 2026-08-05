@@ -39,6 +39,7 @@ from pathlib import Path
 from urllib.parse import urlparse
 
 from locationlab.simulator.publisher import ApiPublisher
+from locationlab.simulator.app_launcher import AppLauncher, AppStartConfig
 from locationlab.simulator.scenario import DeviceScenarioConfig, ScenarioEngine
 
 logging.basicConfig(
@@ -116,6 +117,9 @@ def validate_scenario(cfg: dict) -> None:
                 ) from exc
             if parsed.tzinfo is None:
                 raise ValueError(f"'trip_start_utc' debe incluir zona horaria en '{device_id}'.")
+        app_start = device.get("app_start")
+        if app_start is not None and not isinstance(app_start, dict):
+            raise ValueError(f"'app_start' debe ser un objeto en '{device_id}'.")
 
 
 def run(cfg: dict) -> None:
@@ -133,6 +137,7 @@ def run(cfg: dict) -> None:
                 if d.get("trip_start_utc")
                 else None
             ),
+            app_start=d.get("app_start"),
         )
         for d in cfg["devices"]
     ]
@@ -157,6 +162,8 @@ def run(cfg: dict) -> None:
         use_batch=cfg["use_batch_endpoint"],
         extra_headers=cfg.get("extra_headers", {}),
     )
+    app_launcher = AppLauncher()
+    started_apps: set[str] = set()
 
     tick_s = float(cfg["tick_seconds"])
     wall_tick_s = float(cfg.get("wall_tick_seconds", tick_s))
@@ -186,6 +193,19 @@ def run(cfg: dict) -> None:
             if max_dur > 0 and elapsed >= max_dur:
                 logger.info("Duración máxima alcanzada (%.0f s).", max_dur)
                 break
+
+            for device in device_configs:
+                if (
+                    device.device_id not in started_apps
+                    and device.trip_start_utc is not None
+                    and sim_now >= device.trip_start_utc
+                    and device.app_start is not None
+                ):
+                    launch = AppStartConfig(**device.app_start)
+                    started = app_launcher.start(device.device_id, launch, sim_now)
+                    if not started:
+                        logger.error("No se pudo iniciar la app de '%s'.", device.device_id)
+                    started_apps.add(device.device_id)
 
             events = engine.get_events(sim_now)
 

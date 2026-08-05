@@ -10,7 +10,7 @@ del real. Uso exclusivo en entornos de pruebas **con autorización explícita**.
 
 La PoC implementa un pipeline local completo: escenarios GPX multi-ruta,
 simulacion de dispositivos logicos, fases de trayecto, publicacion HTTP, API
-FastAPI, SQLite y deteccion de grupos. La suite actual tiene 42 tests pasando.
+FastAPI, SQLite y deteccion de grupos. La suite actual tiene 45 tests pasando.
 
 La ruta recomendada no necesita emuladores Android. Los AVDs son opcionales y
 solo sirven para validar visualmente una aplicacion propia o de staging
@@ -163,6 +163,25 @@ En un escenario multi-ruta, cada dispositivo puede incluir `trip_start_utc` para
 marcar el inicio logico del viaje compartido. El motor calcula `waiting`,
 `walking`, `on_trip` y `arrived` con el mismo reloj que genera las coordenadas.
 Este campo no pulsa botones ni llama a APIs privadas de ninguna aplicacion.
+
+Para una app propia de pruebas que exponga una actividad de inicio autorizada,
+se puede añadir al dispositivo:
+
+```json
+{
+  "trip_start_utc": "2026-07-14T07:11:00Z",
+  "app_start": {
+    "mode": "adb_intent",
+    "serial": "emulator-5554",
+    "package": "com.example.test",
+    "activity": ".MainActivity"
+  }
+}
+```
+
+El adaptador ejecuta `adb shell am start` una sola vez al alcanzar
+`trip_start_utc`. El modo por defecto es `noop`, y no hay una actividad o accion
+de Tribbu definida en este repositorio.
 
 ---
 

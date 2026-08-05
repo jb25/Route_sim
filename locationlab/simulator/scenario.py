@@ -35,6 +35,7 @@ class DeviceScenarioConfig:
     speed_variation_pct: float = 1.5
     label: str = ""  # descripción humana (conductor, pasajero 1…)
     trip_start_utc: datetime | None = None
+    app_start: dict | None = None
 
 
 @dataclass
