@@ -2,6 +2,7 @@ from datetime import timezone
 from pathlib import Path
 
 from locationlab.simulator.gpx_reader import load_gpx
+from locationlab.simulator.scenario import DeviceScenarioConfig, ScenarioEngine
 
 
 def _write_gpx(path: Path, points: str) -> None:
@@ -73,3 +74,32 @@ def test_load_gpx_mixed_timestamps_is_coherent_and_ordered(tmp_path: Path):
     assert timestamps == sorted(timestamps)
     assert len({timestamp.tzinfo for timestamp in timestamps}) == 1
     assert (timestamps[-1] - timestamps[0]).total_seconds() == 2
+
+
+def test_scenario_engine_keeps_independent_routes(tmp_path: Path):
+    first_route = tmp_path / "first.gpx"
+    second_route = tmp_path / "second.gpx"
+    points = """
+    <trkpt lat="43.0" lon="-2.0"><time>2026-08-05T08:00:00Z</time></trkpt>
+    <trkpt lat="43.0" lon="-2.1"><time>2026-08-05T08:00:10Z</time></trkpt>
+"""
+    _write_gpx(first_route, points)
+    _write_gpx(
+        second_route,
+        points.replace('lat="43.0"', 'lat="43.5"'),
+    )
+
+    engine = ScenarioEngine(
+        [
+            DeviceScenarioConfig("first", str(first_route), noise_meters=0),
+            DeviceScenarioConfig("second", str(second_route), noise_meters=0),
+        ]
+    )
+    engine.initialize()
+
+    events = engine.get_events(engine.route_start)
+
+    assert {event.device_id for event in events} == {"first", "second"}
+    positions = {event.device_id: event.latitude for event in events}
+    assert positions["first"] == 43.0
+    assert positions["second"] == 43.5

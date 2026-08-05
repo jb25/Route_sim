@@ -402,9 +402,9 @@ El estado del detector vive en memoria dentro del proceso FastAPI. No esta prepa
 Quedan como ampliaciones:
 
 - tests de `load_gpx()` con GPX vacio, sin timestamps, timestamps mixtos y timezone;
-- tests de `ScenarioEngine` con varias rutas;
 - tests de `LocationEvent` y batch;
 - `tests/test_gpx_reader.py`: timestamps UTC, rutas sin fecha y timestamps mixtos.
+- `tests/test_gpx_reader.py`: `ScenarioEngine` con rutas independientes por dispositivo.
 
 La integracion basica de FastAPI ya esta cubierta en `tests/test_pipeline_regressions.py`:
 ingesta batch, historial de dispositivo y consolidacion de grupos.
