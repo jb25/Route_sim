@@ -69,6 +69,12 @@ El proyecto no pretende ser una aplicacion final de movilidad ni una herramienta
 - Infraestructura cloud o despliegue Azure.
 - Garantia de compatibilidad con una API de terceros.
 
+La retencion SQL ya dispone de `cleanup_database.py`: ofrece `--dry-run`,
+elimina eventos y grupos antiguos en una transaccion y respeta
+`LOCATIONLAB_DB_PATH`. La limpieza de ficheros se limita por ahora a caches y
+datos runtime; los scripts Android se conservan porque siguen formando parte
+del flujo opcional de validacion.
+
 La suite actual tiene 40 tests pasando. El CLI admite `wall_tick_seconds` para
 acelerar el tiempo de pared sin alterar el tiempo simulado. El escenario
 `scenarios/commute_bilbao_smoke.json` recorre la ventana completa en segundos;

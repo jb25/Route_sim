@@ -31,6 +31,29 @@ def test_database_uses_simulated_time_and_stable_groups(temporary_database):
     assert len(db.get_current_groups()) == 1
 
 
+def test_database_cleanup_deletes_only_data_before_cutoff(temporary_database):
+    old_time = datetime(2026, 7, 1, 7, 0, tzinfo=timezone.utc)
+    recent_time = datetime(2026, 7, 14, 7, 0, tzinfo=timezone.utc)
+    for timestamp, device_id in ((old_time, "old"), (recent_time, "recent")):
+        db.insert_event(device_id, 43.0, -2.0, timestamp, 5, 10, 0)
+    db.insert_group("old-group", ["old"], old_time)
+    db.insert_group("recent-group", ["recent"], recent_time)
+
+    cutoff = datetime(2026, 7, 10, tzinfo=timezone.utc)
+    assert db.count_expired_data(cutoff) == {
+        "location_events": 1,
+        "detected_groups": 1,
+    }
+    assert db.delete_expired_data(cutoff) == {
+        "location_events": 1,
+        "detected_groups": 1,
+    }
+    assert db.count_expired_data(cutoff) == {
+        "location_events": 0,
+        "detected_groups": 0,
+    }
+
+
 def test_scenario_validation_rejects_invalid_values(tmp_path: Path):
     config = {
         "api_base_url": "http://localhost:8080",

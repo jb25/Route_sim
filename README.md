@@ -126,6 +126,20 @@ Edita `simulator_config.json`:
 pytest tests/ -v
 ```
 
+### 7. Limpiar datos SQLite antiguos
+
+La limpieza conserva por defecto los ultimos 7 dias. Primero inspecciona el
+resultado con `--dry-run`:
+
+```powershell
+python cleanup_database.py --dry-run --retention-days 7
+python cleanup_database.py --retention-days 7
+```
+
+La limpieza elimina en una transaccion eventos y grupos cuya ultima actividad
+sea anterior al corte. Para usar otra base, define `LOCATIONLAB_DB_PATH` antes
+de ejecutar el comando.
+
 ---
 
 ## Configuracion del simulador

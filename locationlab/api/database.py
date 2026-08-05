@@ -170,6 +170,43 @@ def insert_group(
             )
 
 
+def count_expired_data(cutoff_utc: datetime) -> dict[str, int]:
+    """Cuenta eventos y grupos anteriores al corte UTC indicado."""
+    cutoff = cutoff_utc.astimezone(timezone.utc).isoformat()
+    with get_connection() as conn:
+        event_count = conn.execute(
+            "SELECT COUNT(*) FROM location_events WHERE datetime(timestamp_utc) < datetime(?)",
+            (cutoff,),
+        ).fetchone()[0]
+        group_count = conn.execute(
+            """
+            SELECT COUNT(*)
+            FROM detected_groups
+            WHERE datetime(COALESCE(NULLIF(last_seen_utc, ''), detected_at)) < datetime(?)
+            """,
+            (cutoff,),
+        ).fetchone()[0]
+    return {"location_events": event_count, "detected_groups": group_count}
+
+
+def delete_expired_data(cutoff_utc: datetime) -> dict[str, int]:
+    """Elimina datos anteriores al corte UTC indicado en una transaccion."""
+    cutoff = cutoff_utc.astimezone(timezone.utc).isoformat()
+    with _lock, get_connection() as conn:
+        event_count = conn.execute(
+            "DELETE FROM location_events WHERE datetime(timestamp_utc) < datetime(?)",
+            (cutoff,),
+        ).rowcount
+        group_count = conn.execute(
+            """
+            DELETE FROM detected_groups
+            WHERE datetime(COALESCE(NULLIF(last_seen_utc, ''), detected_at)) < datetime(?)
+            """,
+            (cutoff,),
+        ).rowcount
+    return {"location_events": event_count, "detected_groups": group_count}
+
+
 # ---------------------------------------------------------------------------
 # Operaciones de lectura
 # ---------------------------------------------------------------------------
