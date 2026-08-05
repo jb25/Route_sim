@@ -404,7 +404,7 @@ Quedan como ampliaciones:
 - tests de `load_gpx()` con GPX vacio, sin timestamps, timestamps mixtos y timezone;
 - tests de `ScenarioEngine` con varias rutas;
 - tests de `LocationEvent` y batch;
-- pruebas adicionales de GPX mixto y `ScenarioEngine` con varias rutas.
+- `tests/test_gpx_reader.py`: timestamps UTC, rutas sin fecha y timestamps mixtos.
 
 La integracion basica de FastAPI ya esta cubierta en `tests/test_pipeline_regressions.py`:
 ingesta batch, historial de dispositivo y consolidacion de grupos.

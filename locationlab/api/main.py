@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import uuid
 import threading
+from contextlib import asynccontextmanager
 from datetime import datetime, timezone
 from typing import Annotated
 
@@ -26,6 +27,12 @@ from locationlab.core.models import (
     LocationEventBatch,
 )
 
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    db.init_db()
+    yield
+
+
 app = FastAPI(
     title="LocationLab API",
     description=(
@@ -33,6 +40,7 @@ app = FastAPI(
         "de usuarios. Permite probar si un sistema distingue tráfico real de sintético."
     ),
     version="1.0.0",
+    lifespan=lifespan,
 )
 
 # Detector de grupos compartido (estado en memoria, complementado con SQLite)
@@ -45,11 +53,6 @@ _detector = GroupDetector(
     )
 )
 _detection_lock = threading.Lock()
-
-
-@app.on_event("startup")
-def startup() -> None:
-    db.init_db()
 
 
 # ---------------------------------------------------------------------------
